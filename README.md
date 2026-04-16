@@ -36,7 +36,6 @@ En Ubuntu/Debian, lo normal es necesitar:
 Extrae el contenido del paquete en una carpeta.
 
 
-
 ### 2) Dar permiso de ejecución al wrapper
 
 - clic derecho
@@ -75,11 +74,6 @@ El probe puede:
 Durante la prueba **no cierres la cámara**, **no desconectes el cable USB**, y evita abrir otros programas que puedan tomar el control de la cámara.
 
 ---
-
-## Si faltan dependencias
-
-Si falta algo como `gphoto2` o `ffmpeg`, `run_probe.sh` puede ofrecer instalarlo automáticamente.
-
 
 ## Uso con opciones
 
