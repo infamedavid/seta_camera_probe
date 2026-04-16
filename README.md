@@ -5,30 +5,15 @@
 **Funcion:**
 
 1. **comprobar dependencias del sistema**
-2. **detectar una cámara USB compatible con gphoto2**
+2. **detectar una cámara USB compatible**
 3. **probar captura de foto**
-4. **probar live preview por USB en ffplay**
+4. **probar live preview por USB**
 5. **pedir validación humana**
 6. **generar un perfil de compatibilidad**
-7. **generar un driver Python para SETA** si la cámara pasa las pruebas
+7. **generar un driver Python para seta motion si la cámara pasa las pruebas** 
 
-
+no es necesario para dispositivos moviles 
 --
-
-## Qué hace el probe
-
-El probe realiza estas pruebas:
-
-- detección de cámara con `gphoto2`
-- lectura de información básica
-- inspección de settings/config paths
-- prueba de captura de foto
-- prueba de live preview / streaming por USB usando
-- validación humana del resultado
-
-Si todo sale bien, además genera un **driver Python** para seta.
-
----
 
 ## Requisitos
 
