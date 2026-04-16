@@ -10,7 +10,9 @@
 4. **probar live preview por USB**
 5. **pedir validación humana**
 6. **generar un perfil de compatibilidad**
-7. **generar un driver Python para seta motion si la cámara pasa las pruebas** 
+7. **generar un driver Python para seta motion si la cámara pasa las pruebas**
+
+--
 
 no es necesario para dispositivos moviles 
 --
@@ -33,25 +35,21 @@ En Ubuntu/Debian, lo normal es necesitar:
 
 Extrae el contenido del paquete en una carpeta.
 
----
 
-### 3) Dar permiso de ejecución al wrapper
+
+### 2) Dar permiso de ejecución al wrapper
 
 - clic derecho
 - Propiedades
 - Permitir ejecutar como un programa 
 
-```
-
-### 2) Abrir terminal en esa carpeta
+### 3) Abrir terminal en esa carpeta
 
 En Linux puedes hacerlo así:
 
 - abre la carpeta extraída
 - clic derecho
 - **Open in Terminal** / **Abrir en terminal**
-
----
 
 ### 4) Ejecutar el probe
 
@@ -62,8 +60,6 @@ Comando mínimo:
 ```
 
 Eso lanza el proceso completo usando los valores por defecto.
-
----
 
 ## Proceso de prueba:
 
