@@ -1,13 +1,8 @@
-# README — SETA Camera Probe
+# SETA Camera Probe
 
-## Qué es esto
+**seta Camera Probe** es una herramienta de línea de comandos para testear la compativilidad de  camaras DSRL y seta
 
-**SETA Camera Probe** es una herramienta de línea de comandos compuesta por:
-
-- un **script Python** que usa **`gphoto2` del sistema** y **`ffplay` del sistema**
-- un **wrapper shell** (`run_probe.sh`) para que ejecutarlo sea más simple en Linux
-
-Su objetivo es:
+**Funcion:**
 
 1. **comprobar dependencias del sistema**
 2. **detectar una cámara USB compatible con gphoto2**
@@ -17,25 +12,8 @@ Su objetivo es:
 6. **generar un perfil de compatibilidad**
 7. **generar un driver Python para SETA** si la cámara pasa las pruebas
 
-No usa bindings de Python para gphoto2.  
-Habla con la cámara exactamente como lo hace SETA: **llamando al binario `gphoto2` del sistema**.
 
----
-
-## Qué incluye el paquete
-
-El paquete contiene estos archivos:
-
-- `seta_camera_probe.py`  
-  Script principal del probe
-
-- `run_probe.sh`  
-  Wrapper para ejecutar el probe de forma más simple
-
-- `README.md`  
-  Instrucciones de uso
-
----
+--
 
 ## Qué hace el probe
 
@@ -45,10 +23,10 @@ El probe realiza estas pruebas:
 - lectura de información básica
 - inspección de settings/config paths
 - prueba de captura de foto
-- prueba de live preview / streaming por USB usando `ffplay`
+- prueba de live preview / streaming por USB usando
 - validación humana del resultado
 
-Si todo sale bien, además genera un **driver Python** para SETA.
+Si todo sale bien, además genera un **driver Python** para seta.
 
 ---
 
@@ -58,10 +36,9 @@ En Ubuntu/Debian, lo normal es necesitar:
 
 - `python3`
 - `gphoto2`
-- `ffmpeg`  
-  (`ffplay` viene dentro de ese paquete)
+- `ffmpeg`
 
-Si faltan dependencias, `run_probe.sh` puede ofrecer instalarlas con `sudo`.
+`run_probe.sh` puede ofrecer instalarlas con `sudo`.
 
 ---
 
@@ -71,9 +48,15 @@ Si faltan dependencias, `run_probe.sh` puede ofrecer instalarlas con `sudo`.
 
 Extrae el contenido del paquete en una carpeta.
 
-Por ejemplo, si descargaste `seta_camera_probe_bundle_v5.zip`, descomprímelo en cualquier ubicación cómoda.
-
 ---
+
+### 3) Dar permiso de ejecución al wrapper
+
+- clic derecho
+- Propiedades
+- Permitir ejecutar como un programa 
+
+```
 
 ### 2) Abrir terminal en esa carpeta
 
@@ -82,22 +65,6 @@ En Linux puedes hacerlo así:
 - abre la carpeta extraída
 - clic derecho
 - **Open in Terminal** / **Abrir en terminal**
-
-O desde una terminal ya abierta:
-
-```bash
-cd /ruta/a/la/carpeta_extraida
-```
-
----
-
-### 3) Dar permiso de ejecución al wrapper
-
-La primera vez:
-
-```bash
-chmod +x run_probe.sh
-```
 
 ---
 
@@ -113,14 +80,14 @@ Eso lanza el proceso completo usando los valores por defecto.
 
 ---
 
-## Qué esperar durante la prueba
+## Proceso de prueba:
 
 El probe puede:
 
 - detectar la cámara
 - leer su configuración
 - tomar una o más fotos de prueba
-- abrir una ventana de `ffplay` para mostrar preview por USB
+- abrir una ventana de `Live Preview` para mostrar preview por USB
 - preguntarte si viste correctamente el stream y si fue usable
 - generar archivos de salida con logs, reporte y driver
 
@@ -130,16 +97,8 @@ Durante la prueba **no cierres la cámara**, **no desconectes el cable USB**, y 
 
 ## Si faltan dependencias
 
-Si falta algo como `gphoto2` o `ffplay`, `run_probe.sh` puede ofrecer instalarlo automáticamente.
+Si falta algo como `gphoto2` o `ffmpeg`, `run_probe.sh` puede ofrecer instalarlo automáticamente.
 
-Ejemplo típico en Ubuntu/Debian:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y python3 gphoto2 ffmpeg
-```
-
----
 
 ## Uso con opciones
 
@@ -162,7 +121,7 @@ Ejemplo:
 ./run_probe.sh --movie-seconds 20
 ```
 
-Útil cuando la máquina tarda en abrir ffplay o en llenar buffer.
+Útil cuando la máquina tarda en abrir ffmpeg o en llenar buffer.
 
 ---
 
@@ -175,7 +134,7 @@ Ejemplo:
 ./run_probe.sh --capture-retries 3
 ```
 
-Útil para cámaras que a veces quedan ocupadas o tardan en asentarse.
+Útil para cámaras que a veces quedan ocupadas o tardan.
 
 ---
 
@@ -240,7 +199,7 @@ Ahí se guardan:
 - reportes
 - capturas de prueba
 - resultados de validación
-- driver generado, si la prueba fue positiva
+- driver generado, si la prueba fue positiva <<esto es lo que te intereza
 
 ---
 
@@ -258,8 +217,7 @@ Ejemplo real validado por el probe:
 probe_runs/20260416_190220/generated/canon_eos_4000d.py
 ```
 
-Ese fue el archivo generado cuando la Canon EOS 4000D pasó correctamente la prueba.  
-El contenido del driver generado sigue el formato declarativo esperado por SETA, heredando de `GPhoto2CameraDriver`.
+Ese fue el archivo generado cuando mi Canon EOS 4000D pasó correctamente la prueba.  
 
 ---
 
@@ -274,44 +232,11 @@ Si el resultado final es positivo y el driver fue generado:
 
 2. copia ese archivo a la carpeta de drivers del addon SETA
 
-La referencia práctica es la misma carpeta donde viven drivers como:
-
-```text
-drivers/canon_eos_3000d_4000d.py
-```
-
-En muchos setups eso será algo parecido a:
-
 ```text
 seta/drivers/
 ```
 
-o la carpeta `drivers/` dentro del addon, según cómo tengas organizado tu repo o instalación.
-
-### Paso final típico
-
-```bash
-cp probe_runs/20260416_190220/generated/canon_eos_4000d.py /ruta/a/tu/addon/seta/drivers/
-```
-
-Después de eso, reinicia Blender o recarga el addon si hace falta.
-
----
-
-## Qué significa una prueba exitosa
-
-Una cámara se considera realmente válida cuando:
-
-- fue detectada correctamente
-- la captura de foto funcionó
-- el stream/live preview funcionó
-- validaste visualmente que el preview sirve
-- el probe pudo construir el driver
-
-Ejemplo real de resultado positivo:
-
-- `Final status: FULLY_USABLE_FOR_SETA`
-- driver generado: `probe_runs/20260416_190220/generated/canon_eos_4000d.py`
+Después de eso, reinicia Blender
 
 ---
 
@@ -336,58 +261,8 @@ Por eso el probe incluye:
 
 Y si aun así falla, el reporte puede sugerir volver a ejecutar el probe desde cero.
 
----
+Si un intento falla puiedes correr el programa nuevamente ajustando  parametros para beneficiar el funcionamiento correcto de la camara.
 
-## Recomendaciones prácticas
+______________
 
-Antes de correr el probe:
 
-- conecta la cámara por USB
-- enciéndela
-- ponla en modo foto si aplica
-- evita abrir otros programas que usen la cámara
-- deja puesta batería suficiente
-- asegúrate de que la cámara no esté apagándose sola
-
-Si un intento falla y luego otro funciona, eso normalmente apunta a un **estado transitorio**, no necesariamente a falta de soporte real.
-
----
-
-## Resumen rápido
-
-### Ejecutar
-
-```bash
-chmod +x run_probe.sh
-./run_probe.sh
-```
-
-### Ejecutar con ajustes
-
-```bash
-./run_probe.sh --movie-seconds 20 --capture-retries 3 --stream-recipe-retries 2 --settle-seconds 2 --retry-delay-seconds 6
-```
-
-### Driver generado
-
-```text
-probe_runs/<timestamp>/generated/<driver_id>.py
-```
-
-### Paso final
-
-Copiar ese `.py` a la carpeta de drivers del addon SETA.
-
----
-
-## Resultado esperado
-
-Si todo sale bien, terminas con:
-
-- una prueba técnica real de compatibilidad
-- validación visual del preview
-- logs y reportes
-- un **driver Python listo para meter en SETA**
-
-Eso convierte el probe en algo más que un tester:  
-lo vuelve una herramienta para **verificar compatibilidad real y construir el driver resultante**.
