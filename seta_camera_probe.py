@@ -118,7 +118,7 @@ def read_text(path: Path) -> str:
 def ensure_binary(name: str) -> str:
     path = shutil.which(name)
     if not path:
-        raise RuntimeError(f"No se encontró '{name}' en PATH.")
+        raise RuntimeError(f"'{name}' was not found in PATH.")
     return path
 
 
@@ -133,7 +133,7 @@ def ask_yes_no(question: str) -> bool:
             return True
         if answer in {"n", "no"}:
             return False
-        print("Responde y o n.")
+        print("Please answer y or n.")
 
 
 def append_command_log(log_path: Path, title: str, cmd: List[str]) -> None:
@@ -306,17 +306,17 @@ def parse_auto_detect(text: str) -> List[Dict[str, str]]:
 
 
 def choose_device_interactively(devices: List[Dict[str, str]]) -> Dict[str, str]:
-    print("\nSe detectaron varias cámaras:")
+    print("\nMultiple cameras were detected:")
     for idx, dev in enumerate(devices, start=1):
         print(f"  {idx}) {dev['model']} @ {dev['port']}")
 
     while True:
-        raw = input("Elige el número de la cámara a probar: ").strip()
+        raw = input("Choose the number of the camera to test: ").strip()
         if raw.isdigit():
             n = int(raw)
             if 1 <= n <= len(devices):
                 return devices[n - 1]
-        print("Selección inválida.")
+        print("Invalid selection.")
 
 
 def make_gphoto_cmd(
@@ -433,13 +433,13 @@ def print_intro() -> None:
     print()
     print("SETA camera probe")
     print("-----------------")
-    print("Antes de empezar:")
-    print("  - conecta la cámara por USB")
-    print("  - ponla en modo foto")
-    print("  - si puedes, desactiva autoapagado")
-    print("  - cierra programas que puedan tomar la cámara")
+    print("Before starting:")
+    print("  - connect the camera via USB")
+    print("  - set it to photo mode")
+    print("  - if possible, disable auto power-off")
+    print("  - close programs that may claim the camera")
     print()
-    input("Pulsa Enter para continuar...")
+    input("Press Enter to continue...")
 
 
 def try_open_path(path: Path, no_open: bool) -> Dict[str, Any]:
@@ -452,12 +452,12 @@ def try_open_path(path: Path, no_open: bool) -> Dict[str, Any]:
     }
 
     if no_open:
-        result["open_note"] = "Apertura automática desactivada por --no-open."
+        result["open_note"] = "Automatic open disabled by --no-open."
         return result
 
     xdg_open = shutil.which("xdg-open")
     if not xdg_open:
-        result["open_note"] = "No se encontró xdg-open. Abre el archivo manualmente."
+        result["open_note"] = "xdg-open was not found. Open the file manually."
         return result
 
     result["open_attempted"] = True
@@ -470,25 +470,25 @@ def try_open_path(path: Path, no_open: bool) -> Dict[str, Any]:
             stderr=subprocess.DEVNULL,
         )
         result["open_success"] = True
-        result["open_note"] = f"Se lanzó xdg-open con PID {proc.pid}."
+        result["open_note"] = f"xdg-open launched with PID {proc.pid}."
     except Exception as exc:
-        result["open_note"] = f"Falló xdg-open: {exc}"
+        result["open_note"] = f"xdg-open failed: {exc}"
 
     return result
 
 
 def validate_preview_human(preview_file: Path, no_open: bool) -> Dict[str, Any]:
     print()
-    print("Validación humana de preview estático")
-    print(f"Preview guardado en: {preview_file}")
+    print("Human validation for still preview")
+    print(f"Preview saved at: {preview_file}")
     open_info = try_open_path(preview_file, no_open)
     if open_info["open_note"]:
         print(open_info["open_note"])
-    print("Revísalo visualmente y responde.")
+    print("Review it visually and answer.")
 
-    saw_file = ask_yes_no("¿Pudiste ver el archivo de preview?")
-    looks_correct = ask_yes_no("¿La imagen de preview se ve correcta?")
-    usable_for_preview = ask_yes_no("¿Te parece usable como preview de trabajo?")
+    saw_file = ask_yes_no("Were you able to see the preview file?")
+    looks_correct = ask_yes_no("Does the preview image look correct?")
+    usable_for_preview = ask_yes_no("Is it usable as a working preview?")
 
     return {
         "file": str(preview_file),
@@ -501,8 +501,8 @@ def validate_preview_human(preview_file: Path, no_open: bool) -> Dict[str, Any]:
 
 def validate_captures_human(capture_files: List[Path], no_open: bool) -> Dict[str, Any]:
     print()
-    print("Validación humana de capturas")
-    print("Capturas generadas:")
+    print("Human validation for captures")
+    print("Generated captures:")
     for path in capture_files:
         print(f"  - {path}")
 
@@ -510,11 +510,11 @@ def validate_captures_human(capture_files: List[Path], no_open: bool) -> Dict[st
     open_info = try_open_path(target, no_open)
     if open_info["open_note"]:
         print(open_info["open_note"])
-    print("Revísalas visualmente y responde.")
+    print("Review them visually and answer.")
 
-    saw_files = ask_yes_no("¿Pudiste ver las capturas?")
-    looks_correct = ask_yes_no("¿Las fotos se ven correctas?")
-    usable_for_capture = ask_yes_no("¿Te parecen usables para captura en SETA?")
+    saw_files = ask_yes_no("Were you able to see the captures?")
+    looks_correct = ask_yes_no("Do the photos look correct?")
+    usable_for_capture = ask_yes_no("Are they usable for capture in SETA?")
 
     return {
         "files": [str(p) for p in capture_files],
@@ -527,17 +527,17 @@ def validate_captures_human(capture_files: List[Path], no_open: bool) -> Dict[st
 
 def describe_error_actions(category: Optional[str]) -> str:
     actions = {
-        "USB_CLAIM_FAILED": "El sistema no dejó tomar el USB. Cierra apps que usen la cámara y vuelve a probar.",
-        "DEVICE_BUSY": "La cámara está ocupada. Cierra file managers, importadores o procesos gvfs relacionados.",
-        "PTP_IO_ERROR": "Hubo fallo de comunicación PTP. Revisa cable, puerto USB y modo USB de la cámara.",
-        "NO_CAMERA_FOUND": "No se detectó cámara. Revisa conexión, encendido y modo USB/PTP.",
-        "REQUESTED_DEVICE_NOT_FOUND": "El puerto pedido ya no existe o cambió. Repite auto-detect.",
-        "PERMISSION_DENIED": "Faltan permisos para el USB. Revisa udev o ejecuta en un entorno con permisos correctos.",
-        "NOT_SUPPORTED": "La operación existe en gphoto2 pero este modelo no la soporta de forma útil.",
-        "UNSUPPORTED_OPERATION": "La cámara fue detectada, pero no expone esta operación.",
-        "CAPTURE_FAILED": "La cámara respondió pero la captura falló. Revisa modo de disparo, tarjeta y batería.",
-        "TIMEOUT": "La operación tardó demasiado. Puede ser bloqueo, modo incorrecto o soporte inestable.",
-        "UNKNOWN_GPHOTO_ERROR": "gphoto2 devolvió un error genérico. Puede ser estado transitorio o receta no soportada.",
+        "USB_CLAIM_FAILED": "The system could not claim the USB device. Close apps using the camera and try again.",
+        "DEVICE_BUSY": "The camera is busy. Close file managers, import tools, or related gvfs processes.",
+        "PTP_IO_ERROR": "PTP communication failed. Check cable, USB port, and camera USB mode.",
+        "NO_CAMERA_FOUND": "No camera was detected. Check connection, power, and USB/PTP mode.",
+        "REQUESTED_DEVICE_NOT_FOUND": "The requested port no longer exists or changed. Run auto-detect again.",
+        "PERMISSION_DENIED": "USB permissions are missing. Check udev or run in an environment with proper permissions.",
+        "NOT_SUPPORTED": "The operation exists in gphoto2 but this model does not support it in a useful way.",
+        "UNSUPPORTED_OPERATION": "The camera was detected, but it does not expose this operation.",
+        "CAPTURE_FAILED": "The camera responded but capture failed. Check shooting mode, card, and battery.",
+        "TIMEOUT": "The operation took too long. It may be a lockup, wrong mode, or unstable support.",
+        "UNKNOWN_GPHOTO_ERROR": "gphoto2 returned a generic error. It may be a transient state or unsupported recipe.",
     }
     return actions.get(category, "")
 
@@ -566,7 +566,7 @@ def settle_sleep(seconds: float, reason: str = "") -> None:
     if seconds <= 0:
         return
     label = f" ({reason})" if reason else ""
-    print(f"Esperando {seconds:.1f}s{label}...")
+    print(f"Waiting {seconds:.1f}s{label}...")
     time.sleep(seconds)
 
 
@@ -607,9 +607,9 @@ def resolve_selected_device(
 
     if requested_index is not None:
         if not devices:
-            raise RuntimeError("No hay cámaras detectadas para usar --device-index.")
+            raise RuntimeError("No cameras were detected to use with --device-index.")
         if requested_index < 0 or requested_index >= len(devices):
-            raise RuntimeError(f"--device-index fuera de rango: {requested_index}")
+            raise RuntimeError(f"--device-index out of range: {requested_index}")
         return devices[requested_index]
 
     if len(devices) == 1:
@@ -706,9 +706,9 @@ def test_capture_preview(
     result.ok = result.ok and ok_file
 
     if not preview_file.exists():
-        result.note = "No se generó archivo preview."
+        result.note = "No preview file was generated."
     elif not ok_file:
-        result.note = "Preview generado pero vacío o demasiado pequeño."
+        result.note = "Preview generated but empty or too small."
     else:
         result.note = "Preview OK."
 
@@ -749,7 +749,7 @@ def test_capture_images(
 
         for attempt_no in range(1, capture_retries + 1):
             if attempt_no > 1:
-                settle_sleep(retry_delay_seconds, f"retry captura {i} intento {attempt_no}")
+                settle_sleep(retry_delay_seconds, f"capture {i} retry attempt {attempt_no}")
                 reconnect_info = soft_reconnect_check(
                     gphoto2_bin,
                     selected_port,
@@ -761,7 +761,7 @@ def test_capture_images(
                     "attempt": attempt_no,
                     "result": reconnect_info,
                 })
-                settle_sleep(settle_seconds, "asentando después de summary")
+                settle_sleep(settle_seconds, "settling after summary")
 
             debug_log = dirs["logs"] / f"capture_image_{i:02d}_attempt_{attempt_no:02d}.gphoto.debug.log"
             cmd = make_gphoto_cmd(
@@ -803,30 +803,30 @@ def test_capture_images(
                 success = True
                 recovered_after_retry = attempt_no > 1
                 if not shot_file.exists():
-                    result.note = "Captura OK, pero el archivo no quedó disponible localmente."
+                    result.note = "Capture OK, but the file was not available locally."
                 elif not ok_file:
-                    result.note = "Archivo de captura generado pero vacío o demasiado pequeño."
+                    result.note = "Capture file generated but empty or too small."
                 else:
-                    result.note = "Captura OK."
+                    result.note = "Capture OK."
                     capture_files.append(shot_file)
                 break
 
             if attempt_no < capture_retries and is_likely_transient_error(result.error_category):
-                print(f"Captura {i} falló con {result.error_category or 'error desconocido'}. Se reintentará.")
+                print(f"Capture {i} failed with {result.error_category or 'unknown error'}. Retrying.")
                 continue
             if attempt_no < capture_retries and not is_likely_transient_error(result.error_category):
-                print(f"Captura {i} falló con un error no transitorio ({result.error_category or 'unknown'}). No se insistirá más.")
+                print(f"Capture {i} failed with a non-transient error ({result.error_category or 'unknown'}). No more retries.")
                 break
 
         if final_result is None:
-            raise RuntimeError("No se ejecutó ninguna prueba de captura.")
+            raise RuntimeError("No capture test was executed.")
 
         if not shot_file.exists():
-            final_result.note = final_result.note or "No se generó archivo de captura."
+            final_result.note = final_result.note or "No capture file was generated."
         elif not file_nonempty(shot_file, min_bytes=1024):
-            final_result.note = final_result.note or "Archivo generado pero vacío o demasiado pequeño."
+            final_result.note = final_result.note or "File generated but empty or too small."
         else:
-            final_result.note = final_result.note or "Captura OK."
+            final_result.note = final_result.note or "Capture OK."
 
         data = asdict(final_result)
         data["output_file"] = str(shot_file)
@@ -842,7 +842,7 @@ def test_capture_images(
         if data["likely_transient_failure"]:
             rerun_recommended = True
 
-        settle_sleep(settle_seconds, f"asentando tras captura {i}")
+        settle_sleep(settle_seconds, f"settling after capture {i}")
 
     human_validation = None
     if capture_files:
@@ -912,7 +912,7 @@ def build_stream_recipe_candidates(report: Dict[str, Any], movie_seconds: int) -
         )
         add_recipe(
             name=f"prestep_set_config_{safe_slug(key)}",
-            description=f"Pre-step --set-config {assignment}, luego --capture-movie --stdout",
+            description=f"Pre-step --set-config {assignment}, then --capture-movie --stdout",
             pre_steps=[["--set-config", assignment]],
             stream_args=["--capture-movie", str(movie_seconds), "--stdout"],
             preview_value=assignment,
@@ -920,7 +920,7 @@ def build_stream_recipe_candidates(report: Dict[str, Any], movie_seconds: int) -
 
     add_recipe(
         name="direct_capture_movie_stdout",
-        description="Solo --capture-movie --stdout",
+        description="Only --capture-movie --stdout",
         pre_steps=[],
         stream_args=["--capture-movie", str(movie_seconds), "--stdout"],
         preview_value=None,
@@ -930,7 +930,7 @@ def build_stream_recipe_candidates(report: Dict[str, Any], movie_seconds: int) -
         assignment = f"{key}=1"
         add_recipe(
             name=f"movie_mode_prestep_{safe_slug(key)}",
-            description=f"Pre-step --set-config {assignment}, luego --capture-movie --stdout",
+            description=f"Pre-step --set-config {assignment}, then --capture-movie --stdout",
             pre_steps=[["--set-config", assignment]],
             stream_args=["--capture-movie", str(movie_seconds), "--stdout"],
             preview_value=None,
@@ -981,7 +981,7 @@ def _run_stream_recipe_once(
                 "ffplay_returncode": None,
                 "error_category": result.error_category,
                 "error_details": result.error_details,
-                "note": f"Falló pre-step #{idx}: {result.note or result.error_category or 'unknown'}",
+                "note": f"Pre-step #{idx} failed: {result.note or result.error_category or 'unknown'}",
                 "suggested_action": describe_error_actions(result.error_category),
                 "user_validation": {
                     "user_saw_stream": False,
@@ -1044,7 +1044,7 @@ def _run_stream_recipe_once(
             note = f"gphoto2 rc={gp_rc}, ffplay rc={fp_rc}"
 
     except subprocess.TimeoutExpired:
-        note = "Timeout en prueba de stream."
+        note = "Timeout during stream test."
         ok_process = False
         if fp_proc and fp_proc.poll() is None:
             fp_proc.kill()
@@ -1052,7 +1052,7 @@ def _run_stream_recipe_once(
             gp_proc.kill()
 
     except Exception as exc:
-        note = f"Excepción en stream: {exc}"
+        note = f"Exception during stream: {exc}"
         ok_process = False
         if fp_proc and fp_proc.poll() is None:
             fp_proc.kill()
@@ -1064,10 +1064,10 @@ def _run_stream_recipe_once(
     error_category, error_details = classify_gphoto_output("", gp_err_text, gp_rc if gp_rc is not None else 1)
 
     print()
-    print(f"Receta de stream {recipe_index}: {recipe['description']}")
-    print("La prueba de stream terminó.")
-    user_saw_stream = ask_yes_no("¿Viste preview en vivo en la ventana de ffplay?")
-    user_stream_good = ask_yes_no("¿Te pareció usable para onion skin?")
+    print(f"Stream recipe {recipe_index}: {recipe['description']}")
+    print("Stream test finished.")
+    user_saw_stream = ask_yes_no("Did you see live preview in the ffplay window?")
+    user_stream_good = ask_yes_no("Did it look usable for onion skin?")
 
     return {
         "recipe_index": recipe_index,
@@ -1115,23 +1115,23 @@ def test_stream_ffplay(
     rerun_recommended = False
 
     print()
-    print("Se probarán varias recetas equivalentes de stream.")
-    print(f"Duración por receta: {movie_seconds} segundos.")
+    print("Several equivalent stream recipes will be tested.")
+    print(f"Duration per recipe: {movie_seconds} seconds.")
 
     for recipe_index, recipe in enumerate(recipes, start=1):
         print()
-        print(f"[{recipe_index}/{len(recipes)}] Probando: {recipe['description']}")
+        print(f"[{recipe_index}/{len(recipes)}] Testing: {recipe['description']}")
 
         for retry_no in range(1, stream_recipe_retries + 1):
             if retry_no > 1:
-                settle_sleep(retry_delay_seconds, f"retry stream receta {recipe_index} intento {retry_no}")
+                settle_sleep(retry_delay_seconds, f"stream recipe {recipe_index} retry attempt {retry_no}")
                 soft_reconnect_check(
                     gphoto2_bin,
                     selected_port,
                     dirs,
                     f"stream_recipe_{recipe_index:02d}_reconnect_{retry_no:02d}",
                 )
-                settle_sleep(settle_seconds, "asentando antes de reintentar stream")
+                settle_sleep(settle_seconds, "settling before stream retry")
 
             attempt = _run_stream_recipe_once(
                 recipe=recipe,
@@ -1154,7 +1154,7 @@ def test_stream_ffplay(
                 break
 
             if retry_no < stream_recipe_retries and is_likely_transient_error(attempt.get("error_category")):
-                print("La receta falló de forma posiblemente transitoria. Se reintentará la misma receta.")
+                print("The recipe failed in a potentially transient way. The same recipe will be retried.")
                 continue
             break
 
@@ -1164,8 +1164,8 @@ def test_stream_ffplay(
         last_attempt = attempted[-1] if attempted else {}
         if is_likely_transient_error(last_attempt.get("error_category")):
             rerun_recommended = True
-        print("Esta receta no quedó validada. Se probará la siguiente si existe.")
-        settle_sleep(settle_seconds, "asentando entre recetas de stream")
+        print("This recipe was not validated. The next one will be tested if available.")
+        settle_sleep(settle_seconds, "settling between stream recipes")
 
     validation_file = dirs["stream"] / "user_validation.json"
     selected_validation = {
@@ -1186,7 +1186,7 @@ def test_stream_ffplay(
             "ffplay_returncode": last.get("ffplay_returncode"),
             "error_category": last.get("error_category"),
             "error_details": last.get("error_details"),
-            "note": "Ninguna receta de stream quedó validada.",
+            "note": "No stream recipe was validated.",
             "suggested_action": last.get("suggested_action") or describe_error_actions(last.get("error_category")),
             "user_validation_file": str(validation_file),
             "user_saw_stream": False,
@@ -1403,8 +1403,8 @@ def generate_driver_profile(report: Dict[str, Any], dirs: Dict[str, Path]) -> Di
             "stream_error_category": report.get("stream_test", {}).get("error_category"),
         },
         "notes": [
-            "Este archivo es un perfil de compatibilidad y base para generar un driver declarativo.",
-            "usable_for_seta=true exige validación humana positiva de captura y stream; preview still es informativo y no bloquea.",
+            "This file is a compatibility profile and baseline for generating a declarative driver.",
+            "usable_for_seta=true requires positive human validation for capture and stream; still preview is informative and non-blocking.",
         ],
     }
 
@@ -1466,12 +1466,12 @@ def maybe_generate_driver_py(report: Dict[str, Any], dirs: Dict[str, Path]) -> D
     }
 
     if not fully_usable_for_seta(report):
-        result["reason"] = "Se omitió el driver porque la cámara no quedó validada como FULLY_USABLE_FOR_SETA (captura + stream)."
+        result["reason"] = "Driver was skipped because the camera was not validated as FULLY_USABLE_FOR_SETA (capture + stream)."
         return result
 
     validated_settings = collect_validated_settings(report)
     if not validated_settings:
-        result["reason"] = "Se omitió el driver porque no hubo settings validados por get-config para emitir SETTING_KEY_TO_PATH."
+        result["reason"] = "Driver was skipped because no settings were validated by get-config to emit SETTING_KEY_TO_PATH."
         return result
 
     filename, source = render_driver_source(report)
@@ -1479,7 +1479,7 @@ def maybe_generate_driver_py(report: Dict[str, Any], dirs: Dict[str, Path]) -> D
     write_text(out_path, source)
 
     result["generated"] = True
-    result["reason"] = "Driver generado automáticamente porque la cámara pasó captura y stream con validación humana positiva."
+    result["reason"] = "Driver generated automatically because the camera passed capture and stream with positive human validation."
     result["file"] = str(out_path)
     result["driver_id"] = safe_slug((report.get("selected_device") or {}).get("model") or "unknown_camera")
     return result
@@ -1565,7 +1565,7 @@ def build_summary(report: Dict[str, Any]) -> str:
         lines.append(f"Generated driver skipped: {driver_output.get('reason')}")
 
     if report.get("rerun_recommended") and not fully_usable_for_seta(report):
-        lines.append("Rerun recommended: Sí. Hubo señales de fallo transitorio; vuelve a ejecutar el probe desde cero.")
+        lines.append("Rerun recommended: Yes. There were signs of a transient failure; run the probe again from scratch.")
 
     return "\n".join(lines)
 
@@ -1575,16 +1575,16 @@ def build_summary(report: Dict[str, Any]) -> str:
 # ============================================================
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="SETA camera probe usando gphoto2 y ffplay del sistema.")
-    parser.add_argument("--movie-seconds", type=int, default=20, help="Segundos por receta para la prueba de stream.")
-    parser.add_argument("--settle-seconds", type=float, default=2.0, help="Pausa corta entre operaciones críticas.")
-    parser.add_argument("--retry-delay-seconds", type=float, default=6.0, help="Pausa antes de reintentar tras un fallo transitorio.")
-    parser.add_argument("--capture-retries", type=int, default=3, help="Número máximo de intentos por captura.")
-    parser.add_argument("--stream-recipe-retries", type=int, default=2, help="Número máximo de intentos por receta de stream.")
-    parser.add_argument("--output-dir", default="probe_runs", help="Directorio base de salida.")
-    parser.add_argument("--port", default=None, help="Puerto gphoto2 a forzar, por ejemplo usb:001,012")
-    parser.add_argument("--device-index", type=int, default=None, help="Índice 0-based de la cámara detectada a usar.")
-    parser.add_argument("--no-open", action="store_true", help="No intentar abrir preview/capturas con xdg-open.")
+    parser = argparse.ArgumentParser(description="SETA camera probe using system gphoto2 and ffplay.")
+    parser.add_argument("--movie-seconds", type=int, default=20, help="Seconds per recipe for the stream test.")
+    parser.add_argument("--settle-seconds", type=float, default=2.0, help="Short pause between critical operations.")
+    parser.add_argument("--retry-delay-seconds", type=float, default=6.0, help="Pause before retrying after a transient failure.")
+    parser.add_argument("--capture-retries", type=int, default=3, help="Maximum number of attempts per capture.")
+    parser.add_argument("--stream-recipe-retries", type=int, default=2, help="Maximum number of attempts per stream recipe.")
+    parser.add_argument("--output-dir", default="probe_runs", help="Base output directory.")
+    parser.add_argument("--port", default=None, help="gphoto2 port to force, for example usb:001,012")
+    parser.add_argument("--device-index", type=int, default=None, help="0-based index of the detected camera to use.")
+    parser.add_argument("--no-open", action="store_true", help="Do not try to open preview/captures with xdg-open.")
     args = parser.parse_args()
 
     report: Dict[str, Any] = {
@@ -1621,7 +1621,7 @@ def main() -> int:
     session_root = Path(args.output_dir) / now_stamp()
     dirs = mkdirs(session_root)
 
-    print(f"Salida: {session_root}")
+    print(f"Output: {session_root}")
     print_intro()
 
     try:
@@ -1629,23 +1629,23 @@ def main() -> int:
         report["camera_detected"] = bool(devices)
 
         if devices:
-            print("Cámaras detectadas:")
+            print("Detected cameras:")
             for idx, dev in enumerate(devices):
                 print(f"  [{idx}] {dev['model']} @ {dev['port']}")
         else:
-            print("No se detectó ninguna cámara por auto-detect.")
+            print("No camera was detected by auto-detect.")
 
         selected_device = resolve_selected_device(devices, args.port, args.device_index)
         report["selected_device"] = selected_device
 
-        print(f"\nUsando cámara: {selected_device.get('model')} @ {selected_device.get('port')}")
+        print(f"\nUsing camera: {selected_device.get('model')} @ {selected_device.get('port')}")
 
-        print("Leyendo summary / abilities / list-config...")
+        print("Reading summary / abilities / list-config...")
         probe_device_info(gphoto2_bin, selected_device.get("port"), dirs, report)
 
-        settle_sleep(args.settle_seconds, "asentando tras descubrimiento/config")
+        settle_sleep(args.settle_seconds, "settling after discovery/config")
 
-        print("Probando captura de fotos...")
+        print("Testing photo capture...")
         test_capture_images(
             gphoto2_bin,
             selected_device.get("port"),
@@ -1657,9 +1657,9 @@ def main() -> int:
             args.retry_delay_seconds,
         )
 
-        settle_sleep(args.settle_seconds, "asentando antes del stream")
+        settle_sleep(args.settle_seconds, "settling before stream")
 
-        print(f"Probando stream USB en ffplay con recetas equivalentes, {args.movie_seconds} segundos por receta...")
+        print(f"Testing USB stream in ffplay with equivalent recipes, {args.movie_seconds} seconds per recipe...")
         test_stream_ffplay(
             gphoto2_bin,
             ffplay_bin,
@@ -1672,17 +1672,17 @@ def main() -> int:
             args.retry_delay_seconds,
         )
 
-        settle_sleep(args.settle_seconds, "asentando antes del preview estático")
+        settle_sleep(args.settle_seconds, "settling before still preview")
 
-        print("Probando preview estático...")
+        print("Testing still preview...")
         test_capture_preview(gphoto2_bin, selected_device.get("port"), dirs, report, args.no_open)
 
     except KeyboardInterrupt:
-        print("\nInterrumpido por usuario.")
+        print("\nInterrupted by user.")
         report["interrupted"] = True
 
     except Exception as exc:
-        print(f"ERROR inesperado: {exc}")
+        print(f"Unexpected ERROR: {exc}")
         report["fatal_error"] = str(exc)
 
     report["generated_driver"] = maybe_generate_driver_py(report, dirs)
@@ -1702,8 +1702,8 @@ def main() -> int:
     print()
     print(report["summary"])
     print()
-    print(f"Reporte JSON:      {report_path}")
-    print(f"Resumen:           {summary_path}")
+    print(f"JSON report:       {report_path}")
+    print(f"Summary:           {summary_path}")
     print(f"Driver profile:    {driver_profile_path}")
     if report["generated_driver"].get("generated"):
         print(f"Driver Python:     {report['generated_driver']['file']}")
